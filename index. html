@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study & Productivity App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-success { background: #4CAF50; }
+        .btn-success:hover { background: #45a049; }
+
+        .btn-danger { background: #f44336; }
+        .btn-danger:hover { background: #da190b; }
+
+        .btn-warning { background: #FF9800; }
+        .btn-warning:hover { background: #e68900; }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .task-actions button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .timer-display {
+            text-align: center;
+            font-size: 72px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 40px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .timer-presets {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .ai-chat {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .ai-message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .ai-message.user {
+            background: #667eea;
+            color: white;
+            margin-left: 50px;
+        }
+
+        .ai-message.bot {
+            background: white;
+            margin-right: 50px;
+            border: 2px solid #ddd;
+        }
+
+        .ai-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ai-options button {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .tab {
+                font-size: 12px;
+                padding: 12px 5px;
+            }
+
+            .timer-display {
+                font-size: 48px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 AI Study & Productivity App</h1>
+            <p>Your personal study assistant</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('tasks')">📝 Tasks</button>
+            <button class="tab" onclick="showTab('routines')">🔄 Routines</button>
+            <button class="tab" onclick="showTab('timer')">⏰ Timer</button>
+            <button class="tab" onclick="showTab('ai')">🤖 AI</button>
+            <button class="tab" onclick="showTab('stats')">📊 Stats</button>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks" class="tab-content active">
+            <h2>Your Tasks</h2>
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="Enter a new task..." onkeypress="if(event.key==='Enter') addTask()">
+                <button onclick="addTask()" class="btn-success">Add Task</button>
+            </div>
+            <ul id="taskList" class="task-list"></ul>
+        </div>
+
+        <!-- Routines Tab -->
+        <div id="routines" class="tab-content">
+            <h2>Your Routines</h2>
+            <div class="input-group">
+                <input type="text" id="routineInput" placeholder="Enter a new routine...">
+            </div>
+            <div class="radio-group">
+                <label><input type="radio" name="frequency" value="daily" checked> Daily</label>
+                <label><input type="radio" name="frequency" value="weekly"> Weekly</label>
+            </div>
+            <button onclick="addRoutine()" class="btn-success">Add Routine</button>
+            <br><br>
+            <ul id="routineList" class="task-list"></ul>
+        </div>
+
+        <!-- Timer Tab -->
+        <div id="timer" class="tab-content">
+            <h2>Study Timer (Pomodoro)</h2>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-presets">
+                <button onclick="setTimer(25)" class="btn-success">25 min (Study)</button>
+                <button onclick="setTimer(5)" class="btn-warning">5 min (Break)</button>
+                <button onclick="setTimer(15)" class="btn-warning">15 min (Long Break)</button>
+            </div>
+            <div class="timer-controls">
+                <button onclick="startTimer()" class="btn-success">▶ Start</button>
+                <button onclick="pauseTimer()" class="btn-warning">⏸ Pause</button>
+                <button onclick="resetTimer()" class="btn-danger">🔄 Reset</button>
+            </div>
+            <p style="text-align: center; color: #666;">💡 Tip: Focus for 25 minutes, then take a 5-minute break!</p>
+        </div>
+
+        <!-- AI Assistant Tab -->
+        <div id="ai" class="tab-content">
+            <h2>🤖 AI Study Assistant</h2>
+            <div class="ai-options">
+                <button onclick="askAI('math')">📐 Math Tips</button>
+                <button onclick="askAI('science')">🔬 Science Tips</button>
+                <button onclick="askAI('language')">📚 Language Tips</button>
+                <button onclick="askAI('history')">🏛️ History Tips</button>
+                <button onclick="askAI('study')">🎓 Study Tips</button>
+                <button onclick="askAI('motivation')">💪 Motivation</button>
+                <button onclick="askAI('notes')">📝 Note Taking</button>
+                <button onclick="askAI('exam')">📋 Exam Prep</button>
+            </div>
+            <div class="ai-chat" id="aiChat">
+                <div class="ai-message bot">
+                    <strong>AI Assistant:</strong><br>
+                    Hello! I'm your study assistant. Click any button above to get tips, or ask me a question below! 😊
+                </div>
+            </div>
+            <div class="input-group">
+                <input type="text" id="aiInput" placeholder="Ask me anything about studying..." onkeypress="if(event.key==='Enter') sendAIMessage()">
+                <button onclick="sendAIMessage()">Send</button>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats" class="tab-content">
+            <h2>Your Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalTasks">0</h3>
+                    <p>Total Tasks</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="completedTasks">0</h3>
+                    <p>Completed</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalRoutines">0</h3>
+                    <p>Active Routines</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="studySessions">0</h3>
+                    <p>Study Sessions Today</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let data = {
+            todos: [],
+            routines: [],
+            studySessions: []
+        };
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('studyAppData');
+            if (saved) {
+                data = JSON.parse(saved);
+                renderTasks();
+                renderRoutines();
+                updateStats();
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('studyAppData', JSON.stringify(data));
+            updateStats();
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Tasks
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (text) {
+                data.todos.push({
+                    id: Date.now(),
+                    text: text,
+                    completed: false,
+                    created: new Date().toISOString()
+                });
+                input.value = '';
+                saveData();
+                renderTasks();
+            }
+        }
+
+        function toggleTask(id) {
+            const task = data.todos.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveData();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            data.todos = data.todos.filter(t => t.id !== id);
+            saveData();
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            if (data.todos.length === 0) {
+                list.innerHTML = '<div class="empty-state"><h3>No tasks yet!</h3><p>Add your first task to get started 🚀</p></div>';
+                return;
+            }
+            list.innerHTML = data.todos.map(task => `
+                <li class="task-item ${task.completed ? 'completed' : ''}">
+                    <span>${task.completed ? '✅' : '⭕'} ${task.text}</span>
+                    <div class="task-actions">
+                        <button onclick="toggleTask(${task.id})" class="btn-success">✓</button>
+                        <button onclick="deleteTask(${task.id})" class="btn-danger">🗑</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        // Routines
+        function addRoutine() {
+            const input = document.getElementById('routineInput');
+            const text = input.value.trim();
+            const frequency = document.querySelector('input[name="frequency"]:checked').value;
+            if (text) {
+                data.routines.push({
+                    id: Date.now(),
+                    text: text,
+                    frequency: frequency,
+                    lastDone: null
+                });
+                input.value = '';
+                saveData();
+                renderRoutines();
+            }
+        }
+
+        function completeRoutine(id) {
+            const routine = data.routines.find(r => r.id === id);
+            if (routine) {
+                routine.lastDone = new Date().toISOString();
+                saveData();
+                renderRoutines();
+            }
+        }
+
+        function deleteRoutine(id) {
+            data.routines = data.routines.filter(r => r.id !== id);
+            saveData();
+            renderRoutines();
+        }
+
+        function renderRoutines() {
+            const list = document.getElementById('routineList');
+            if (data.routines.length === 0) {
+                list.innerHTML = '<div class="empty-state"><h3>No routines yet!</h3><p>Add a routine to build good habits 💪</p></div>';
+                return;
+            }
+            list.innerHTML = data.routines.map(routine => {
+                const lastDone = routine.lastDone ? new Date(routine.lastDone).toLocaleString() : 'Never';
+                return `
+                    <li class="task-item">
+                        <div>
+                            <strong>${routine.text}</strong><br>
+                            <small>${routine.frequency} • Last done: ${lastDone}</small>
+                        </div>
+                        <div class="task-actions">
+                            <button onclick="completeRoutine(${routine.id})" class="btn-success">✓ Done</button>
+                            <button onclick="deleteRoutine(${routine.id})" class="btn-danger">🗑</button>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // Timer
+        let timerInterval;
+        let timerSeconds = 25 * 60;
+        let timerRunning = false;
+
+        function setTimer(minutes) {
+            timerSeconds = minutes * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (!timerRunning) {
+                timerRunning = true;
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        pauseTimer();
+                        alert('⏰ Time\'s up! Great work! 🎉');
+                        logStudySession();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 25 * 60;
+            updateTimerDisplay();
+        }
+
+        function logStudySession() {
+            data.studySessions.push({
+                date: new Date().toISOString(),
+                duration: 25
+            });
+            saveData();
+        }
+
+        // AI Assistant
+        const aiResponses = {
+            math: `📐 Math Study Tips:
+
+1. PRACTICE, don't just read!
+   • Do 10+ problems per topic
+   • Work through examples step-by-step
+
+2. Learn formulas actively:
+   • Write them out 5 times
+   • Use them in different problems
+
+3. Understand, don't memorize:
+   • Ask "why does this work?"
+   • Draw diagrams for word problems
+
+4. Check your work:
+   • Plug answers back in
+   • Does it make sense?
+
+💡 Math is a skill - practice makes perfect!`,
+
+            science: `🔬 Science Study Tips:
+
+1. Connect concepts to real life
+   • How does this apply around you?
+
+2. Draw diagrams and charts
+   • Visual learning helps memory
+
+3. Teach someone else
+   • If you can teach it, you know it!
+
+4. Make flashcards for terms
+   • Review daily
+
+5. Study processes step-by-step
+   • Break complex cycles into stages
+
+🌟 Stay curious!`,
+
+            language: `📚 Language/English Tips:
+
+1. Read actively:
+   • Highlight key points
+   • Take notes while reading
+
+2. Build vocabulary daily:
+   • Learn 5 new words/day
+   • Use them in sentences
+
+3. Practice writing:
+   • Write paragraphs daily
+   • Keep a journal
+
+4. For essays:
+   • Plan before writing (outline!)
+   • Introduction + Body + Conclusion
+
+✍️ Good writing = clear thinking!`,
+
+            history: `🏛️ History Study Tips:
+
+1. Create timelines
+   • Visual sequence of events
+
+2. Use memory tricks
+   • Acronyms for dates
+   • Stories to remember facts
+
+3. Understand WHY, not just WHAT
+   • Why did events happen?
+
+4. Make connections
+   • How do events relate?
+
+5. Use maps
+   • Where did things happen?
+
+⏰ History is YOUR story!`,
+
+            study: `🎓 General Study Tips:
+
+1. POMODORO TECHNIQUE:
+   • Study 25 min → Break 5 min
+   • Use the timer in this app!
+
+2. ACTIVE LEARNING:
+   • Don't just read - DO!
+   • Test yourself often
+
+3. SPACED REPETITION:
+   • Review: Day 1, 3, 7, 14
+
+4. STUDY ENVIRONMENT:
+   • Quiet, well-lit space
+   • Remove distractions
+
+5. BEFORE EXAMS:
+   • Start 1 week before
+   • Sleep well!
+
+💪 Consistency beats intensity!`,
+
+            motivation: `💪 Stay Motivated!
+
+Remember:
+• Small progress is STILL progress
+• You're building your future NOW
+• Every study session counts
+• It's okay to struggle sometimes
+• Rest, then try again
+
+🚀 You're doing AMAZING!
+Keep pushing forward! 🌟
+
+Your dedication today = success tomorrow!`,
+
+            notes: `📝 Note-Taking Tips:
+
+1. CORNELL METHOD:
+   • Notes | Cues | Summary
+   • Review by covering notes
+
+2. Don't copy everything
+   • Write in your own words
+   • Add questions in margins
+
+3. COLOR CODING:
+   • Different colors = topics
+   • Helps visual memory
+
+4. REVIEW within 24 hours!
+
+💡 Good notes = half the work done!`,
+
+            exam: `📋 Exam Prep Guide:
+
+WEEK BEFORE:
+✓ Organize materials
+✓ Make study schedule
+✓ Identify weak areas
+
+3-4 DAYS BEFORE:
+✓ Review all material
+✓ Do practice tests
+✓ Study with friends
+
+DAY BEFORE:
+✓ Light review only
+✓ Sleep 8+ hours!
+✓ Don't cram!
+
+EXAM DAY:
+✓ Good breakfast
+✓ Arrive early
+✓ Read all instructions
+✓ Answer easy questions first
+
+💪 You've got this!`
+        };
+
+        function askAI(topic) {
+            const chat = document.getElementById('aiChat');
+            const response = aiResponses[topic] || 'I can help with that! Choose a topic above or ask me something specific.';
+            
+            chat.innerHTML += `<div class="ai-message bot"><strong>AI:</strong><br>${response.replace(/\n/g, '<br>')}</div>`;
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chat = document.getElementById('aiChat');
+            chat.innerHTML += `<div class="ai-message user"><strong>You:</strong><br>${message}</div>`;
+            
+            input.value = '';
+
+            // Simple AI response
+            setTimeout(() => {
+                let response = "That's a great question! ";
+                if (message.toLowerCase().includes('math')) response += aiResponses.math;
+                else if (message.toLowerCase().includes('science')) response += aiResponses.science;
+                else if (message.toLowerCase().includes('motivat')) response += aiResponses.motivation;
+                else if (message.toLowerCase().includes('exam') || message.toLowerCase().includes('test')) response += aiResponses.exam;
+                else response += "Try clicking one of the topic buttons above for detailed tips! 😊";
+
+                chat.innerHTML += `<div class="ai-message bot"><strong>AI:</strong><br>${response.replace(/\n/g, '<br>')}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 500);
+        }
+
+        // Stats
+        function updateStats() {
+            document.getElementById('totalTasks').textContent = data.todos.length;
+            document.getElementById('completedTasks').textContent = data.todos.filter(t => t.completed).length;
+            document.getElementById('totalRoutines').textContent = data.routines.length;
+            
+            const today = new Date().toDateString();
+            const sessionsToday = data.studySessions.filter(s => 
+                new Date(s.date).toDateString() === today
+            ).length;
+            document.getElementById('studySessions').textContent = sessionsToday;
+        }
+
+        // Initialize
+        loadData();
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
